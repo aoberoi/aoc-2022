@@ -6,14 +6,14 @@ const path = pathBasedOnCurrentFile('./input.txt');
 const input = await Deno.readTextFile(path);
 
 // Initialize state
-let maxCaloriesCarriedByElf = 0;
+const caloriesCarriedByEachElf: number[] = [];
 let caloriesCarriedByCurrentElf = 0;
 
 for (const line of input.split('\n')) {
 
   if (line.length === 0) {
     // End of current elf
-    maxCaloriesCarriedByElf = Math.max(maxCaloriesCarriedByElf, caloriesCarriedByCurrentElf);
+    caloriesCarriedByEachElf.push(caloriesCarriedByCurrentElf);
     caloriesCarriedByCurrentElf = 0;
     continue;
   }
@@ -26,10 +26,13 @@ for (const line of input.split('\n')) {
 }
 
 // In case we don't end on a blank line, we need to compare one more time
-maxCaloriesCarriedByElf = Math.max(maxCaloriesCarriedByElf, caloriesCarriedByCurrentElf);
+caloriesCarriedByEachElf.push(caloriesCarriedByCurrentElf);
+
+// Find the sum from the top 3
+const answer = caloriesCarriedByEachElf.sort((a, b) => b - a).slice(0, 3).reduce((a, c) => a + c, 0);
 
 // Print answer
-console.log(maxCaloriesCarriedByElf);
+console.log(answer);
 
 /*
  * Utils
