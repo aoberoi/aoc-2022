@@ -4,11 +4,6 @@ import { readTextFileFrom } from '../util.ts';
  * Helpers
  */
 
-interface ItemTypeInventory {
-  // TODO: this can just be a boolean flag for seen
-  [itemType: string]: number;
-}
-
 function priorityOfItem(itemType: string): number {
   const characterCode = itemType.charCodeAt(0);
 
@@ -23,6 +18,10 @@ function priorityOfItem(itemType: string): number {
   return 0;
 }
 
+function intersect<T>(a: Set<T>, b: Set<T>): Set<T> {
+  return new Set([...a].filter(i => b.has(i)));
+}
+
 /*
  * Main program
  */
@@ -31,31 +30,45 @@ const input = await readTextFileFrom(import.meta.url, './input.txt');
 
 let sumOfPriorities = 0;
 
-for (const rucksack of input.split('\n')) {
-  const itemTypes: ItemTypeInventory = {};
-  let misplacedItemType: string | undefined;
+const rucksacks = input.split('\n');
 
-  const compartmentSize = rucksack.length / 2;
-  let i = 0;
-  for (; i < compartmentSize; i++) {
-    const item = rucksack[i];
-    itemTypes[item] = 1;
+// Group into groups of 3
+const groups: string[][] = [];
+rucksacks.forEach((rucksack, index) => {
+  if (rucksack === '') {
+    // Skip empty lines
+    return;
   }
-  for (; i < rucksack.length; i++) {
-    const item = rucksack[i];
-    if (itemTypes[item] !== undefined) {
-      misplacedItemType = item;
-      break;
+  const groupIndex = Math.floor(index / 3);
+  if (groups[groupIndex] === undefined) {
+    groups[groupIndex] = [rucksack];
+  } else {
+    groups[groupIndex].push(rucksack);
+  }
+});
+
+for (const group of groups) {
+  let commonItemTypes: Set<string> | undefined = undefined;
+
+  for (const rucksack of group) {
+    const itemTypes = new Set(rucksack);
+    if (commonItemTypes === undefined) {
+      // Initializes commonItemTypes set
+      commonItemTypes = itemTypes;
+    } else {
+      // Eliminate commonItemTypes that are not in the current rucksack
+      commonItemTypes = intersect(commonItemTypes, itemTypes);
     }
   }
 
-  if (misplacedItemType === undefined) {
-    console.error('No misplaced item found');
+  if (commonItemTypes === undefined || commonItemTypes.size !== 1) {
+    console.error('Did not find one unique item across all rucksacks in group');
     break;
   }
 
-  const priority = priorityOfItem(misplacedItemType);
-  console.log(`Misplaced item: ${misplacedItemType}, priority: ${priority}`);
+  const badgeType = [...commonItemTypes][0];
+
+  const priority = priorityOfItem(badgeType);
 
   sumOfPriorities += priority;
 }
