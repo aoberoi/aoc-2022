@@ -1,9 +1,6 @@
-import { fromFileUrl, dirname, resolve } from "https://deno.land/std@0.167.0/path/mod.ts";
+import { readTextFileFrom } from '../util.ts';
 
-const path = pathBasedOnCurrentFile('./input.txt');
-
-// TODO: maybe we could handle this as a stream instead of reading into memory all at once
-const input = await Deno.readTextFile(path);
+const input = await readTextFileFrom(import.meta.url, './input.txt');
 
 // Initialize state
 const caloriesCarriedByEachElf: number[] = [];
@@ -33,11 +30,3 @@ const answer = caloriesCarriedByEachElf.sort((a, b) => b - a).slice(0, 3).reduce
 
 // Print answer
 console.log(answer);
-
-/*
- * Utils
- */
-
-function pathBasedOnCurrentFile(relativePath: string): string {
-  return resolve(dirname(fromFileUrl(import.meta.url)), relativePath);
-}
