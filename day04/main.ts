@@ -24,29 +24,21 @@ const input = await readTextFileFrom(import.meta.url, './input.txt');
 
 const pairs = input.split('\n');
 
-let fullyContainedAssignments = 0;
+let overlappingAssignments = 0;
 
 for (const pair of pairs) {
   if (pair === '') {
-    console.log('skip');
     continue;
   }
 
   const [[firstStart, firstEnd], [secondStart, secondEnd]] = parsePair(pair);
 
   if (
-    // firstAssignment is fully contained in secondAssignment
-    (firstStart >= secondStart && firstStart <= secondEnd &&
-    firstEnd >= secondStart && firstEnd <= secondEnd) ||
-    // secondAssignment is fully contained in firstAssignment
-    (secondStart >= firstStart && secondStart <= firstEnd &&
-    secondEnd >= firstStart && secondEnd <= firstEnd)
+    (firstStart >= secondStart && firstStart <= secondEnd) ||
+    (secondStart >= firstStart && secondStart <= firstEnd)
   ) {
-    fullyContainedAssignments += 1;
-    console.log(`Fully contained: ${pair}`)
-  } else {
-    console.log(`Not fully contained: ${pair}`);
+    overlappingAssignments += 1;
   }
 }
 
-console.log(fullyContainedAssignments);
+console.log(overlappingAssignments);
