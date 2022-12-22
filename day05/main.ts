@@ -72,12 +72,8 @@ for (const step of steps) {
 
   const parsedStep = parseStep(step);
 
-  for (let i = 0; i < parsedStep.quantity; i++) {
-    const crate = stacks[parsedStep.source].pop();
-    if (crate !== undefined) {
-      stacks[parsedStep.destination].push(crate);
-    }
-  }
+  const crates = stacks[parsedStep.source].splice(-parsedStep.quantity)
+  stacks[parsedStep.destination].push(...crates);
 }
 
 // Find the top crate on each stack
